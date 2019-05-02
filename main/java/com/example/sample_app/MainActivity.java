@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private Socket m_socket;
     private Handler m_handler;
 
+    String tmp = ""; // storage temp. text
+
     String ServerIP = "140.115.158.249";
     int socket_Port = 9527;
 
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    // To Buide Socket
+    // To Build Socket
     private Runnable threadConnection_Run = new Runnable(){
 
         @Override
@@ -64,10 +66,12 @@ public class MainActivity extends AppCompatActivity {
         {
             try
             {
+                // Connect to the server
                 m_socket = new Socket(ServerIP, socket_Port);
-                while (m_socket.isConnected()){
+
+                /*while (m_socket.isConnected()){
                     Log.e("text","I'm connected.");
-                }
+                }*/
                 if (m_socket.isConnected()){
                     m_threadReceive = new Thread(threadReceive_Run);
                 }
@@ -86,14 +90,35 @@ public class MainActivity extends AppCompatActivity {
     private Runnable threadReceive_Run = new Runnable() {
         @Override
         public void run() {
-            m_handler.post(handlerUpdateData);
+            try {
+                // Get the Internet input stream
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        m_socket.getInputStream()));
+
+                // When getting connected
+                while (m_socket.isConnected()) {
+                    tmp = br.readLine(); // Get the Internet messages
+
+                    // if not empty message
+                    if (tmp != null) {
+                        m_handler.post(handlerUpdateData);
+                    }
+                }
+            }
+            catch (IOException e){
+                e.printStackTrace();
+                Log.e("text","Socket connect="+e.toString());
+                finish();
+            }
         }
     };
 
+    // Display the messages
     private Runnable handlerUpdateData = new Runnable() {
         @Override
         public void run() {
-            Log.e("text","I'm posting.");
+            // add new messages
+            m_txt_connect.append(tmp + "\n");
         }
     };
 }
