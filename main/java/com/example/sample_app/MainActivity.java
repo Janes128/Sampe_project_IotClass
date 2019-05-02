@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private Runnable handlerUpdateData = new Runnable() {
         @Override
         public void run() {
-
+            Log.e("text","I'm posting.");
         }
     };
 }
